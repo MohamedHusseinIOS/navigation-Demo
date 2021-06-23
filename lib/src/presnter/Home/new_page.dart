@@ -7,7 +7,6 @@ class NewPage extends BasePage {
   Widget basebuild(BuildContext context) {
     return Center(
       child: Scaffold(
-        appBar: AppBar(),
         body: Center(
           child: Text("NewPAge"),
         ),

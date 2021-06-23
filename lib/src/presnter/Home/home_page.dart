@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:navigation_demo/src/presnter/Home/Home_States.dart';
+import 'package:navigation_demo/src/presnter/Home/home_states.dart';
 import 'package:navigation_demo/src/presnter/Home/home_bloc.dart';
 import 'package:navigation_demo/src/presnter/Home/home_event.dart';
 import 'package:navigation_demo/src/presnter/base_classes/base_page.dart';
@@ -10,22 +10,20 @@ import 'navigation_bar/bar_items.dart';
 import 'navigation_bar/sp_bottom_navigation_bar.dart';
 
 class HomePage extends BasePage {
-  int selectionIndex = 0;
   final barItems = BarItems();
-
+  BottomNavigationBarItem? currentItem;
   @override
   Widget basebuild(BuildContext context) {
     return BlocProvider<HomeBloc>(
       create: (context) => HomeBloc(),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          var index;
-          if (state is ChangeBarScreenState) {
-            index = state.selectedIndex;
-          } else {
-            index = 0;
-          }
-          return body(context, index);
+          return Scaffold(
+            appBar: AppBar(),
+            body: body(state, context),
+            bottomNavigationBar: navigationBar(context),
+            drawer: SideMenu(),
+          );
         },
         buildWhen: (previousState, state) {
           return (state is ChangeBarScreenState);
@@ -34,42 +32,43 @@ class HomePage extends BasePage {
     );
   }
 
-  Widget body1(BuildContext context, int selectedIndex) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        items: barItems.itemsList.map((model) => model.item).toList(),
-      ),
-      tabBuilder: (BuildContext context, int index) {
-        return CupertinoTabView(
-          builder: (BuildContext context) {
-            return CupertinoPageScaffold(
-              navigationBar: CupertinoNavigationBar(middle: Text('Page1')),
-              child: Center(),
-            );
-          },
-        );
+  Widget body(HomeState state, BuildContext context) {
+    int selectedIndex = 0;
+    if (state is ChangeBarScreenState) {
+      selectedIndex = state.selectedIndex;
+    } else {
+      selectedIndex = 0;
+    }
+    return navigationBarScreens(selectedIndex, context);
+  }
+
+  Widget navigationBar(BuildContext context) {
+    return SPBottomNavigationBar(
+      tabBarSelection: (int index) {
+        context
+            .read<HomeBloc>()
+            .add(changeBarScreenEvent(selectedIndex: index));
       },
+      itemsList: barItems.itemsList.map((model) => model.item).toList(),
     );
   }
 
-  Widget body(BuildContext context, int selectedIndex) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: barItems.itemsList[selectedIndex].screen,
-      bottomNavigationBar: navigationBar(context, selectedIndex),
-      drawer: SideMenu(),
+  Widget navigationBarScreens(int selectedIndex, BuildContext context) {
+    final key = barItems.itemsList[selectedIndex].navigatorKey;
+    return WillPopScope(
+      onWillPop: () async => !await Navigator.maybePop(key.currentState!.context),
+      child: Stack(
+        children: [
+          Offstage(
+            offstage: barItems.itemsList[selectedIndex] != barItems.home,
+            child: barItems.home.buildNavigator(),
+          ),
+          Offstage(
+            offstage: barItems.itemsList[selectedIndex] != barItems.machines,
+            child: barItems.machines.buildNavigator(),
+          )
+        ],
+      ),
     );
-  }
-  
-  Widget navigationBar(BuildContext context, int selectedIndex) {
-	  return SPBottomNavigationBar(
-        tabBarSelection: (int index) {
-          context
-              .read<HomeBloc>()
-              .add(changeBarScreenEvent(selectedIndex: index));
-        },
-        itemsList: barItems.itemsList.map((model) => model.item).toList(),
-        index: selectedIndex,
-      );
   }
 }

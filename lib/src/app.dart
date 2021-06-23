@@ -8,8 +8,6 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.light(),
       home: router.home,
-      routes: router.routes,
-      onGenerateRoute: router.onGenerateRoute,
     );
   }
 }
