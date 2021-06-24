@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:navigation_demo/src/presnter/Home/home_states.dart';
 import 'package:navigation_demo/src/presnter/Home/home_bloc.dart';
 import 'package:navigation_demo/src/presnter/Home/home_event.dart';
+import 'package:navigation_demo/src/presnter/Home/navigation_bar/navigation_bar_home_data.dart';
 import 'package:navigation_demo/src/presnter/base_classes/base_page.dart';
 import 'package:navigation_demo/src/presnter/side_menu.dart';
 import 'navigation_bar/bar_items.dart';
@@ -11,7 +12,10 @@ import 'navigation_bar/sp_bottom_navigation_bar.dart';
 
 class HomePage extends BasePage {
   final barItems = BarItems();
+  int selectedIndex = 0;
   BottomNavigationBarItem? currentItem;
+
+  HomePage(Key key) : super(key);
   @override
   Widget basebuild(BuildContext context) {
     return BlocProvider<HomeBloc>(
@@ -33,11 +37,16 @@ class HomePage extends BasePage {
   }
 
   Widget body(HomeState state, BuildContext context) {
-    int selectedIndex = 0;
-    if (state is ChangeBarScreenState) {
+    if (state is ChangeBarScreenState && selectedIndex != state.selectedIndex) {
       selectedIndex = state.selectedIndex;
-    } else {
-      selectedIndex = 0;
+    } else if (state is ChangeBarScreenState &&
+        selectedIndex == state.selectedIndex) {
+      final key = barItems.itemsList[selectedIndex].navigator!.navigatorKey;
+      if (key is GlobalKey<NavigatorState>) {
+        key.currentState?.popUntil((route) =>
+            route.settings.name ==
+            barItems.itemsList[selectedIndex].screen.name);
+      }
     }
     return navigationBarScreens(selectedIndex, context);
   }
@@ -56,7 +65,7 @@ class HomePage extends BasePage {
   Widget navigationBarScreens(int selectedIndex, BuildContext context) {
     final key = barItems.itemsList[selectedIndex].navigatorKey;
     return WillPopScope(
-      onWillPop: () async => !await Navigator.maybePop(key.currentState!.context),
+      onWillPop: () async => !await key.currentState!.maybePop(),
       child: Stack(
         children: [
           Offstage(

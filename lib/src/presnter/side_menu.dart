@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:navigation_demo/src/presnter/Home/account_page.dart';
 
 class SideMenu extends StatelessWidget {
+  SideMenu();
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -15,7 +18,11 @@ class SideMenu extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Bottom TabBar'),
+            title: Text('Account'),
+            onTap: () => {
+              Navigator.of(context).pop(),
+              Navigator.of(context).pushNamed((AccountPage).toString())
+            },
           )
         ],
       ),

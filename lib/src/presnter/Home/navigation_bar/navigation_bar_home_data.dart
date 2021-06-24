@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_demo/src/Presnter/base_classes/base_page.dart';
 import 'package:navigation_demo/src/presnter/Home/navigation_bar/tab_navigator.dart';
 import 'package:navigation_demo/src/presnter/Home/new_page.dart';
+import 'package:navigation_demo/src/presnter/base_classes/base_page.dart';
 import 'package:navigation_demo/src/presnter/base_classes/navigation_bar_tab.dart';
-import 'package:navigation_demo/src/sp_router.dart';
 
 class NavigationBarHomeData implements NavigationBarTab {
   @override
-  Widget get screen => HomeScreen();
+  BasePage get screen => HomeScreen(Key('1'));
 
   @override
   BottomNavigationBarItem get item => BottomNavigationBarItem(
@@ -18,8 +17,8 @@ class NavigationBarHomeData implements NavigationBarTab {
       );
 
   @override
-  GlobalKey<NavigatorState> get navigatorKey => GlobalKey<NavigatorState>();
-
+  GlobalKey<NavigatorState> get navigatorKey => GlobalKey<NavigatorState>(debugLabel: 'Navigation1');
+	
   @override
   TabNavigator? navigator;
 
@@ -38,14 +37,24 @@ class NavigationBarHomeData implements NavigationBarTab {
 
 class HomeScreen extends BasePage {
   @override
+  NavigatorState? navigator;
+
+  HomeScreen(Key key) : super(key);
+  @override
   Widget basebuild(BuildContext context) {
+    navigator = Navigator.of(context);
     return Center(
         child: MaterialButton(
       onPressed: () {
         Navigator.pushNamed(context, (NewPage).toString());
       },
       color: Theme.of(context).primaryColor,
-      child: Text('newPage'),
+      child: Text(
+        'newPage',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
     ));
   }
 }

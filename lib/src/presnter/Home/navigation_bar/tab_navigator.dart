@@ -9,10 +9,11 @@ class TabNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = SPRouter(context);
-    return Navigator(
+    final navigator = Navigator(
       key: navigatorKey,
       initialRoute: initialRoute,
       onGenerateRoute: router.onGenerateRoute,
     );
+    return navigator;
   }
 }
